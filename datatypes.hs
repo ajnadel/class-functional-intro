@@ -6,7 +6,8 @@
 --        print y
 
 -- DATE
-data Date = Date Int Int Integer -- M/D/Y
+data Date = Date Int Int Int
+    deriving Eq -- M/D/Y
 month (Date x _ _) = x
 day (Date _ x _) = x
 year (Date _ _ x) = x
@@ -25,17 +26,27 @@ monthName m
     | m == 11   = "October"
     | m == 12   = "December"
 
-ordinal m
+ordinalSuffix m
     | mod m 10 == 1 = "st"
     | mod m 10 == 2 = "nd"
     | mod m 10 == 3 = "rd"
     | otherwise     = "th"
+ordinal x = show x ++ ordinalSuffix x
 
 fullMonth d = monthName (month d)
-fullDate d = show (day d) ++ ordinal (day d) -- note the scoping of ++
+fullDate d = ordinal (day d)
+-- note the scoping of ++
 
 instance Show Date where
     show d = fullMonth d ++ " " ++ fullDate d ++ ", " ++ show (year d)
+
+oneOr x = min 1 x
+
+formattedDateNumber d = day d + oneOr (month d) * 100 + oneOr (year d) * 10000
+--compareD a b = compare (formattedDateNumber a) (formattedDateNumber b)
+
+instance Ord Date where
+    compare a b = compare (formattedDateNumber a) (formattedDateNumber b)
 
 --show :: (Integral a) => a -> String  
 
